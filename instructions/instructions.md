@@ -36,11 +36,14 @@ In this assignment, we will use evolutionary computing to assign TAs to specific
 1. Minimize overallocation of TAs (overallocation): Each TA specifies how many labs they can support (max_assigned column in tas.csv). If a TA requests at most 2 labs and you assign to them 5 labs, that’s an overallocation penalty of 3. Compute the objective by summing the overallocation penalty over all TAs. There is no minimum allocation.
 
 2. Minimize time conflicts (conflicts): Minimize the number of TAs with one or more time conflicts. A time conflict occurs if you assign a TA to two labs meeting at the same time. If a TA has multiple time conflicts, still count that as one overall time conflict for that TA.
+
 3. Minimize Under-Support (undersupport): If a section needs at least 3 TAs and you only assign 1, countthatas2penaltypoints.Minimizethetotalpenaltyscoreacrossallsections. Thereisno penalty for assigning too many TAs. You can never have enough TAs.
 
 4. Minimize the number of times you allocate a TA to a section they are unavailable to support (unavailable). You could argue this is really a hard constraint, but we will treat it as an objective to be minimized instead.
+
 5. Minimize the number of times you allocate a TA to a section where they said “willing” but not “preferred”. (unpreferred). In effect, we are trying to assign TAs to sections that they prefer. But we want to frame every objective a minimization objective. So, if your solution score has unwilling=0 and unpreferred=0, then all TAs are assigned to sections they prefer! Good job!
 Deliverables
+
 1. Submit four code files to gradescope. This includes your version of evo.py, profiler.py, assignta.py, and test_assignta.py.
 2. Submit one summary table (groupname_summary.csv) of your final non-dominated Pareto- optimal solutions in comma-delimited value (csv) format. Each row is one non-dominated Pareto- optimal solution. Each column is the score for one objective. The SIX columns are: groupname, overallocation, conflicts, undersupport, unavailable, unpreferred. The group name can be whatever you like, but please limit to 8 characters, no spaces, and no special characters. The group name will, of course, be the same in every row. If you don’t format your summary in exactly this format your team is disqualified from the competition! (By the way, this assignment is a friendly competition to see who can come up with the best solutions. I will be participating in the competition, and I hate to lose!)
 3. Identify what you consider to be your “best” solution and justify your answer! Submit as a single file: best_solution.txt.
