@@ -4,8 +4,18 @@ File: test_assignta.py
 Description: unit tests for each objective
 """
 
-from assignta import overallocation, conflicts, undersupport, unavailable
+from assignta import AssignTa
 import pytest
+
+
+def instance():
+    a = AssignTa()
+    ta = a.load_data("assignta_data/tas.csv")
+    lab = a.load_data("assignta_data/sections.csv")
+    a.assign_ta_df(ta)
+    a.assign_lab_df(lab)
+    # TODO make a setup with a known assignment matrix
+    return a
 
 
 def test_overallocation():
@@ -29,3 +39,7 @@ def main():
     test_conflicts()
     test_undersupport()
     test_undersupport()
+
+
+if __name__ == "__main__":
+    main()
