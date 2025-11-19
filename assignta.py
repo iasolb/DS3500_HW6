@@ -6,7 +6,7 @@ Description: core TA assignment logic, data prep, objectives
 
 import numpy as np
 import pandas as pd
-
+from evo import Evo
 
 # ==== Initialization // Helpers
 
@@ -142,6 +142,7 @@ def conflict_remover_agent(assignment, tas_df, labs_df):
 
 # ==== Main
 def main():
+    evo = Evo()
     tas_df = load_data("assignta_data/tas.csv")
     labs_df = load_data("assignta_data/sections.csv")
     print(tas_df.head())
