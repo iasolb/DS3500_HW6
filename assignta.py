@@ -74,12 +74,10 @@ class AssignTa:
         ```
         """
 
-        per_ta_total_assignments = assignment.sum(
-            axis=1
-        )  # Number of labs assigned to each TA
-        per_ta_maximum_labs = self.ta["max_assigned"].values  # Allowed labs per TA
+        per_ta_total_assignments = assignment.sum(axis=1)
+        per_ta_maximum_assignments = self.ta["max_assigned"].values
         penalty = np.maximum(
-            per_ta_total_assignments - per_ta_maximum_labs, 0
+            per_ta_total_assignments - per_ta_maximum_assignments, 0
         ).sum()  # Takes the element-wise maximum between the difference and 0 (Clips negative sums to 0- no penalty for under allocation)
         return penalty
 
@@ -98,14 +96,19 @@ class AssignTa:
              A time conflict occurs if you assign a TA to two labs meeting at the same time.
              If a TA has multiple time conflicts, still count that as one overall time conflict for that TA.
         """
+
+        # penalty = 0
+        # lab_time = self.lab["daytime"]  # Lab meeting times
+        # for assigned_row in assignment:
+        #     assigned_lab_indices = np.where(assigned_row == 1)[0]  # Assigned lab
+        #     times = lab_time[assigned_lab_indices]  # Lab time
+        #     if len(times) != len(set(times)) and len(times) > 0:
+        #         penalty += 1
+        #     return penalty
+
         penalty = 0
-        lab_time = self.lab["daytime"]  # Lab meeting times
-        for assigned_row in assignment:
-            assigned_lab_indices = np.where(assigned_row == 1)[0]  # Assigned lab
-            times = lab_time[assigned_lab_indices]  # Lab time
-            if len(times) != len(set(times)) and len(times) > 0:
-                penalty += 1
-            return penalty
+
+        return penalty
 
     def undersupport(self, assignment: np.ndarray) -> int:
         """
