@@ -7,6 +7,7 @@ Description: core TA assignment logic, data prep, objectives
 import numpy as np
 import pandas as pd
 from evo import Evo
+from profiler import profile
 
 
 class AssignTa:
@@ -233,6 +234,10 @@ def main():
     A time conflict occurs if you assign a TA to two labs meeting at the same time. 
     If a TA has multiple time conflicts, still count that as one overall time conflict for that TA.
     """
+    print("Starting Task 2")
+    task2_evolution = Evo()
+    # TODO implement evolution for task 2
+    print("Task 2 Complete")
 
     # Task 3
     """
@@ -242,11 +247,20 @@ def main():
     You can never have enough TAs.
     """
 
+    print("Starting Task 3")
+    task3_evolution = Evo()
+    # TODO implement evolution for task 3
+    print("Task 3 Complete")
+
     # Task 4
     """
     Minimize the number of times you allocate a TA to a section they are unavailable to support (unavailable). 
     You could argue this is really a hard constraint, but we will treat it as an objective to be minimized instead.
     """
+    print("Starting Task 4")
+    task4_evolution = Evo()
+    # TODO implement evolution for task 4
+    print("Task 4 Complete")
 
     # Task 5
     """
@@ -254,6 +268,11 @@ def main():
     In effect, we are trying to assign TAs to sections that they prefer. But we want to frame every objective a minimization objective. 
     So, if your solution score has unwilling=0 and unpreferred=0, then all TAs are assigned to sections they prefer! Good job!
     """
+
+    print("Starting Task 5")
+    task5_evolution = Evo()
+    # TODO implement evolution for task 5
+    print("Task 5 Complete")
 
 
 if __name__ == "__main__":
