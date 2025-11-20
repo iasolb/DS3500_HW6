@@ -113,7 +113,7 @@ class Evo:
                     self.remove_dominated()
                     if status > 0 and i % status == 0:
                         print(f"Iteration: {i} | Time: {elapsed:.2f}s | Population: {self.size()}")
-                    i += 1
+                i += 1
 
             # Final cleanup
             self.remove_dominated()
@@ -177,6 +177,8 @@ class Evo:
         df = df.sort_values("_total")
         df = df.drop(columns=["_total"])
         df = df.reset_index(drop=True)
+
+        return df
 
 
     def __str__(self):

@@ -94,7 +94,7 @@ class Profiler:
         lines.append("=" * 80)
 
         # Output
-        report_text = "/n".join(lines)
+        report_text = "\n".join(lines)
 
         if output_file:
             with open(output_file, "w") as f:

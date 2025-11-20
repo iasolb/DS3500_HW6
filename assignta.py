@@ -196,8 +196,9 @@ class AssignTa:
         ta_idx = np.random.choice(assignment.shape[0])
         unassigned_preferred = (self.prefer[ta_idx] == 1) & (assignment[ta_idx] == 0)
         available_labs = np.where(unassigned_preferred)[0]
-        lab_idx = np.random.choice(available_labs)
-        new_assignment[lab_idx, ta_idx] = 1
+        if len(available_labs) > 0:
+            lab_idx = np.random.choice(available_labs)
+            new_assignment[ta_idx, lab_idx] = 1
         return new_assignment
 
     def undersupport_agent(self, assignment: np.ndarray) -> np.ndarray:
@@ -236,12 +237,15 @@ class AssignTa:
     def conflict_remover_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Removes a scheduling conflict"""
         new_assignment = assignment.copy()
-        conflicts = self.get_conflict_pairs()
-        choice = np.random.choice((conflicts))
-        ta_idx, lab_idx = choice
-        new_assignment[lab_idx, ta_idx] = 0
-        return new_assignment
+        conflicts = self.get_conflict_pairs(new_assignment)
 
+        if len(conflicts) == 0:
+            return new_assignment
+
+        choice = np.random.choice(len(conflicts))
+        ta_idx, lab_idx = conflicts[choice]
+        new_assignment[ta_idx, lab_idx] = 0
+        return new_assignment
 
 # ==== Main
 def main():
