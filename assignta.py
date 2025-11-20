@@ -13,6 +13,7 @@ class AssignTa:
     def __init__(self):
         self.ta = None
         self.lab = None
+        self.assignment = None
 
     # ==== Initialization // Helpers
 
@@ -25,11 +26,13 @@ class AssignTa:
     def assign_lab_df(self, data: pd.DataFrame):
         self.lab = data
 
-    def init_assignment(num_tas, num_labs):
+    def init_assignment(self, num_tas, num_labs):
         """
         Create an initial assignment of num_tas, num_labs (all start as 0)
+
         """
-        return np.zeros((num_tas, num_labs), dtype=int)
+        self.assignment = np.zeros((num_tas, num_labs), dtype=int)
+        return self.assignment
 
     # ==== Objective Functions
 
@@ -205,8 +208,11 @@ def main():
     lab = a.load_data("assignta_data/sections.csv")
     a.assign_ta_df(ta)
     a.assign_lab_df(lab)
+    a.init_assignment(len(a.ta), len(a.lab))
+    print(a.assignment.size)
     print(a.ta.head())
     print(a.lab.head())
+    print(a.assignment)
 
 
 if __name__ == "__main__":

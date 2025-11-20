@@ -14,6 +14,7 @@ def instance():
     lab = a.load_data("assignta_data/sections.csv")
     a.assign_ta_df(ta)
     a.assign_lab_df(lab)
+
     # TODO make a setup with a known assignment matrix
     return a
 
