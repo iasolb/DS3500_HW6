@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from evo import Evo
 from profiler import profile
+from collections import defaultdict
 
 
 class AssignTa:
@@ -15,6 +16,9 @@ class AssignTa:
         self.ta = None
         self.lab = None
         self.assignment = None
+        self.unavail = None
+        self.willing = None
+        self.prefer = None
 
     # ==== Initialization // Helpers
 
@@ -35,18 +39,16 @@ class AssignTa:
         num_labs = len(self.lab)
         return np.zeros((num_tas, num_labs), dtype=int)
 
-    def get_preference_masks(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def get_preference_masks(self):
         """
         returns preference masks - helper function for objectives
         """
         ta_working = self.ta.drop(columns=["ta_id", "name", "max_assigned"])
         values = ta_working.values
         # Create Mask
-        unavailable = (values == "U").astype(int)
-        willing = (values == "W").astype(int)
-        preferred = (values == "P").astype(int)
-
-        return unavailable, willing, preferred
+        self.unavail = (values == "U").astype(int)
+        self.willing = (values == "W").astype(int)
+        self.prefer = (values == "P").astype(int)
 
     # ==== Objective Functions
 
@@ -73,7 +75,6 @@ class AssignTa:
         There is no minimum allocation
         ```
         """
-
         per_ta_total_assignments = assignment.sum(axis=1)
         per_ta_maximum_assignments = self.ta["max_assigned"].values
         penalty = np.maximum(
@@ -96,18 +97,16 @@ class AssignTa:
              A time conflict occurs if you assign a TA to two labs meeting at the same time.
              If a TA has multiple time conflicts, still count that as one overall time conflict for that TA.
         """
-
-        # penalty = 0
-        # lab_time = self.lab["daytime"]  # Lab meeting times
-        # for assigned_row in assignment:
-        #     assigned_lab_indices = np.where(assigned_row == 1)[0]  # Assigned lab
-        #     times = lab_time[assigned_lab_indices]  # Lab time
-        #     if len(times) != len(set(times)) and len(times) > 0:
-        #         penalty += 1
-        #     return penalty
-
         penalty = 0
-
+        all_lab_times = self.lab["daytime"].tolist()  # Lab meeting times
+        for ta in assignment:
+            assigned_labs_idx = np.where(ta == 1)[0]  # Assigned lab
+            assigned_times = all_lab_times[assigned_labs_idx]  # Lab time
+            if (
+                len(assigned_times) != len(set(assigned_times))
+                and len(assigned_times) > 0
+            ):
+                penalty += 1
         return penalty
 
     def undersupport(self, assignment: np.ndarray) -> int:
@@ -125,9 +124,9 @@ class AssignTa:
              If a section needs at least 3 TAs and you only assign 1, count that as 2 penalty points.
              Minimize the total penalty score across all sections. There is no penalty for assigning too many TAs.
         """
-        assigned = assignment.sum(axis=0)  # Number of TAs assigned per lab
-        required = self.lab["min_ta"].values  # Minimum TAs needed per lab
-        penalty = np.maximum(required - assigned, 0).sum()
+        assigned_tas = assignment.sum(axis=0)  # Number of TAs assigned per lab
+        required_tas = self.lab["min_ta"].values  # Minimum TAs needed per lab
+        penalty = np.maximum(required_tas - assigned_tas, 0).sum()
         return penalty
 
     def unavailable(self, assignment: np.ndarray) -> int:
@@ -143,9 +142,8 @@ class AssignTa:
         int
             Total number of times TAs are assigned to sections they are unavailable for.
         """
-        unavailable, _, _ = self.get_preference_masks()
-        mask = (unavailable == 1) & (assignment == 1)
-        penalty = np.sum(mask)
+        assigned_but_unavailable = (self.unavail == 1) & (assignment == 1)
+        penalty = np.sum(assigned_but_unavailable)
         return penalty
 
     def unpreferred(self, assignment: np.ndarray) -> int:
@@ -157,49 +155,51 @@ class AssignTa:
         tas_df : pd.DataFrame
             DataFrame containing TA information, including their preference levels.
         Returns
-            int:    Each TA specifies how many labs they can support (max_assigned column in tas.csv).
-                    If a TA requests at most 2 labs and you assign to them 5 labs, that’s an overallocation penalty of 3.
-                    Compute the objective by summing the overallocation penalty over all TAs.
+            int: Minimize the number of times you allocate a TA to a section where they said “willing” but not “preferred”. (unpreferred).
+                In effect, we are trying to assign TAs to sections that they prefer. But we want to frame every objective a minimization objective.
+                So, if your solution score has unwilling=0 and unpreferred=0, then all TAs are assigned to sections they prefer!
         """
-        _, willing, _ = self.get_preference_masks()
-        mask = (willing == 1) & (assignment == 1)
-        penalty = np.sum(mask)
+        assigned_not_preferred = (self.willing == 1) & (assignment == 1)
+        penalty = np.sum(assigned_not_preferred)
         return penalty
 
     # ==== Agent Functions
 
-    def random_agent(self, assignment: np.ndarray) -> np.ndarray:
+    def random_flip_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Assign a random value (0 or 1) to one TA-lab pair"""
         new_assignment = assignment.copy()
-
-        # Assign a random value (0 or 1) to one TA-lab pair
-
+        ta_idx = np.random.choice(assignment.shape[0])
+        lab_idx = np.random.choice(assignment.shape[1])
+        if assignment[lab_idx, ta_idx] == 1:
+            assignment[lab_idx, ta_idx] = 0
+        else:
+            assignment[lab_idx, ta_idx] = 1
         return new_assignment
 
     def preference_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Assign a TA to a lab they prefer"""
         new_assignment = assignment.copy()
-        _, _, preferred = self.get_preference_masks()
-        # TODO: write logic
-        # random choice ta
-        # get all preferred labs (that are not assigned already)
-        # pick a random object from that list
-        # flip to 1
-        # return new assignment matrix
+        ta_idx = np.random.choice(assignment.shape[0])
+        unassigned_preferred = (self.prefer[ta_idx] == 1) & (assignment[ta_idx] == 0)
+        available_labs = np.where(unassigned_preferred)[0]
+        lab_idx = np.random.choice(available_labs)
+        new_assignment[lab_idx, ta_idx] = 1
         return new_assignment
 
     def undersupport_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Assign an available TA to an undersupported lab"""
         new_assignment = assignment.copy()
-
         # TODO: write logic
-
+        # find lab with the largest difference between min_ta and allocated
+        # random choice - to prevent tie errors (pick one unsupported lab)
+        # find all TAs which are != Unavailable AND assigned = 0
+        # check for time conflicts
+        # assign one of the available candidates 1
         return new_assignment
 
     def conflict_remover_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Removes a scheduling conflict"""
         new_assignment = assignment.copy()
-
         # TODO: write logic
 
         return new_assignment
