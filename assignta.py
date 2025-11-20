@@ -74,10 +74,14 @@ class AssignTa:
         ```
         """
 
-        assigned = assignment.sum(axis=1)  # Number of labs assigned to each TA
-        max_labs = self.ta["max_assigned"].values  # Allowed labs per TA
-        penalties = np.maximum(assigned - max_labs, 0).sum()
-        return penalties
+        per_ta_total_assignments = assignment.sum(
+            axis=1
+        )  # Number of labs assigned to each TA
+        per_ta_maximum_labs = self.ta["max_assigned"].values  # Allowed labs per TA
+        penalty = np.maximum(
+            per_ta_total_assignments - per_ta_maximum_labs, 0
+        ).sum()  # Takes the element-wise maximum between the difference and 0 (Clips negative sums to 0- no penalty for under allocation)
+        return penalty
 
     def conflicts(self, assignment: np.ndarray) -> int:
         """
@@ -94,14 +98,14 @@ class AssignTa:
              A time conflict occurs if you assign a TA to two labs meeting at the same time.
              If a TA has multiple time conflicts, still count that as one overall time conflict for that TA.
         """
-        penalties = 0
+        penalty = 0
         lab_time = self.lab["daytime"]  # Lab meeting times
         for assigned_row in assignment:
             assigned_lab_indices = np.where(assigned_row == 1)[0]  # Assigned lab
             times = lab_time[assigned_lab_indices]  # Lab time
             if len(times) != len(set(times)) and len(times) > 0:
-                penalties += 1
-            return penalties
+                penalty += 1
+            return penalty
 
     def undersupport(self, assignment: np.ndarray) -> int:
         """
@@ -120,8 +124,8 @@ class AssignTa:
         """
         assigned = assignment.sum(axis=0)  # Number of TAs assigned per lab
         required = self.lab["min_ta"].values  # Minimum TAs needed per lab
-        penalties = np.maximum(required - assigned, 0).sum()
-        return penalties
+        penalty = np.maximum(required - assigned, 0).sum()
+        return penalty
 
     def unavailable(self, assignment: np.ndarray) -> int:
         """
@@ -138,8 +142,8 @@ class AssignTa:
         """
         unavailable, _, _ = self.get_preference_masks()
         mask = (unavailable == 1) & (assignment == 1)
-        penalties = np.sum(mask)
-        return penalties
+        penalty = np.sum(mask)
+        return penalty
 
     def unpreferred(self, assignment: np.ndarray) -> int:
         """
@@ -156,8 +160,8 @@ class AssignTa:
         """
         _, willing, _ = self.get_preference_masks()
         mask = (willing == 1) & (assignment == 1)
-        penalties = np.sum(mask)
-        return penalties
+        penalty = np.sum(mask)
+        return penalty
 
     # ==== Agent Functions
 
@@ -172,9 +176,13 @@ class AssignTa:
     def preference_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Assign a TA to a lab they prefer"""
         new_assignment = assignment.copy()
-
+        _, _, preferred = self.get_preference_masks()
         # TODO: write logic
-
+        # random choice ta
+        # get all preferred labs (that are not assigned already)
+        # pick a random object from that list
+        # flip to 1
+        # return new assignment matrix
         return new_assignment
 
     def undersupport_agent(self, assignment: np.ndarray) -> np.ndarray:
