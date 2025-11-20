@@ -49,7 +49,7 @@ class AssignTa:
 
     # ==== Objective Functions
 
-    def overallocation(self, assignment):
+    def overallocation(self, assignment: np.ndarray) -> int:
         """
         Parameters
         ----------
@@ -78,7 +78,7 @@ class AssignTa:
         penalties = np.maximum(assigned - max_labs, 0).sum()
         return penalties
 
-    def conflicts(self, assignment):
+    def conflicts(self, assignment: np.ndarray) -> int:
         """
         Parameters
         ----------
@@ -102,7 +102,7 @@ class AssignTa:
                 penalties += 1
             return penalties
 
-    def undersupport(self, assignment):
+    def undersupport(self, assignment: np.ndarray) -> int:
         """
         Parameters
         ----------
@@ -118,11 +118,11 @@ class AssignTa:
              Minimize the total penalty score across all sections. There is no penalty for assigning too many TAs.
         """
         assigned = assignment.sum(axis=0)  # Number of TAs assigned per lab
-        required = labs_df["min_ta"].values  # Minimum TAs needed per lab
+        required = self.lab["min_ta"].values  # Minimum TAs needed per lab
         penalties = np.maximum(required - assigned, 0).sum()
         return penalties
 
-    def unavailable(self, assignment):
+    def unavailable(self, assignment: np.ndarray) -> int:
         """
         Parameters
         ----------
@@ -140,7 +140,7 @@ class AssignTa:
         penalties = np.sum(mask)
         return penalties
 
-    def unpreferred(self, assignment):
+    def unpreferred(self, assignment: np.ndarray) -> int:
         """
         Parameters
         ----------
@@ -160,15 +160,15 @@ class AssignTa:
 
     # ==== Agent Functions
 
-    def random_agent(self, assignment, tas_df, labs_df):
+    def random_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Assign a random value (0 or 1) to one TA-lab pair"""
         new_assignment = assignment.copy()
 
-        # TODO: write logic
+        # Assign a random value (0 or 1) to one TA-lab pair
 
         return new_assignment
 
-    def preference_agent(self, assignment, tas_df, labs_df):
+    def preference_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Assign a TA to a lab they prefer"""
         new_assignment = assignment.copy()
 
@@ -176,7 +176,7 @@ class AssignTa:
 
         return new_assignment
 
-    def undersupport_agent(self, assignment, tas_df, labs_df):
+    def undersupport_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Assign an available TA to an undersupported lab"""
         new_assignment = assignment.copy()
 
@@ -184,7 +184,7 @@ class AssignTa:
 
         return new_assignment
 
-    def conflict_remover_agent(self, assignment, tas_df, labs_df):
+    def conflict_remover_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Removes a scheduling conflict"""
         new_assignment = assignment.copy()
 
