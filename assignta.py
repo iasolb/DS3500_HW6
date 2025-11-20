@@ -50,6 +50,9 @@ class AssignTa:
         self.willing = (values == "W").astype(int)
         self.prefer = (values == "P").astype(int)
 
+    def get_conflict_pairs(self, assignment: np.array) -> list:
+        assignment
+
     # ==== Objective Functions
 
     def overallocation(self, assignment: np.ndarray) -> int:
@@ -201,6 +204,7 @@ class AssignTa:
         """Removes a scheduling conflict"""
         new_assignment = assignment.copy()
         # TODO: write logic
+        # find labs
 
         return new_assignment
 
