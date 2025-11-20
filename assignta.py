@@ -29,7 +29,6 @@ class AssignTa:
     def zeros(self) -> np.array:
         """
         Create an initial assignment of num_tas, num_labs (all start as 0)
-
         """
         num_tas = len(self.ta)
         num_labs = len(self.lab)
@@ -50,7 +49,7 @@ class AssignTa:
 
     # ==== Objective Functions
 
-    def overallocation(self, assignment, tas_df):
+    def overallocation(self, assignment):
         """
         Parameters
         ----------
@@ -75,11 +74,11 @@ class AssignTa:
         """
 
         assigned = assignment.sum(axis=1)  # Number of labs assigned to each TA
-        max_labs = tas_df["max_assigned"].values  # Allowed labs per TA
+        max_labs = self.ta["max_assigned"].values  # Allowed labs per TA
         penalties = np.maximum(assigned - max_labs, 0).sum()
         return penalties
 
-    def conflicts(self, assignment, labs_df):
+    def conflicts(self, assignment):
         """
         Parameters
         ----------
@@ -91,16 +90,11 @@ class AssignTa:
         -------
         int
             Total number of TAs with time conflicts.
-        Description
-        -----------
-        Minimize the number of TAs with one or more time conflicts.
-        ```
-        A time conflict occurs if you assign a TA to two labs meeting at the same time.
-        If a TA has multiple time conflicts, still count that as one overall time conflict for that TA.
-        ```
+             A time conflict occurs if you assign a TA to two labs meeting at the same time.
+             If a TA has multiple time conflicts, still count that as one overall time conflict for that TA.
         """
         penalties = 0
-        lab_time = labs_df["daytime"]  # Lab meeting times
+        lab_time = self.lab["daytime"]  # Lab meeting times
         for assigned_row in assignment:
             assigned_lab_indices = np.where(assigned_row == 1)[0]  # Assigned lab
             times = lab_time[assigned_lab_indices]  # Lab time
@@ -108,7 +102,7 @@ class AssignTa:
                 penalties += 1
             return penalties
 
-    def undersupport(self, assignment, labs_df):
+    def undersupport(self, assignment):
         """
         Parameters
         ----------
@@ -120,22 +114,15 @@ class AssignTa:
         -------
         int
             Total undersupport penalty.
-        Description
-        -----------
-        Minimize the total undersupport penalty across all sections.
-        ```
-        If a section needs at least 3 TAs and you only assign 1, count that as 2 penalty points.
-        Minimize the total penalty score across all sections.
-        There is no penalty for assigning too many TAs.
-        You can never have enough TAs.
-        ```
+             If a section needs at least 3 TAs and you only assign 1, count that as 2 penalty points.
+             Minimize the total penalty score across all sections. There is no penalty for assigning too many TAs.
         """
         assigned = assignment.sum(axis=0)  # Number of TAs assigned per lab
         required = labs_df["min_ta"].values  # Minimum TAs needed per lab
         penalties = np.maximum(required - assigned, 0).sum()
         return penalties
 
-    def unavailable(self, assignment, tas_df):
+    def unavailable(self, assignment):
         """
         Parameters
         ----------
@@ -146,25 +133,25 @@ class AssignTa:
         Returns
         -------
         int
-            Total number of times TAs are assigned to unavailable sections.
-        Description
-        -----------
-        Minimize the number of times you allocate a TA to a section they are unavailable to support (unavailable).
-        You could argue this is really a hard constraint, but we will treat it as an objective to be minimized instead.
+            Total number of times TAs are assigned to sections they are unavailable for.
         """
         unavailable, _, _ = self.get_preference_masks()
         mask = (unavailable == 1) & (assignment == 1)
         penalties = np.sum(mask)
         return penalties
 
-    def unpreferred(self, assignment, tas_df):
+    def unpreferred(self, assignment):
         """
-        Minimize the number of times you allocate a TA to a section where they said “willing” but not “preferred”. (unpreferred).
-        In effect, we are trying to assign TAs to sections that they prefer.
-        But we want to frame every objective a minimization objective.
-        So, if your solution score has
-        unwilling=0
-        unpreferred=0
+        Parameters
+        ----------
+        assignment : np.ndarray
+            2D array where rows are TAs and columns are labs. A value of 1 indicates the TA is assigned to that lab, 0 otherwise.
+        tas_df : pd.DataFrame
+            DataFrame containing TA information, including their preference levels.
+        Returns
+            int:    Each TA specifies how many labs they can support (max_assigned column in tas.csv).
+                    If a TA requests at most 2 labs and you assign to them 5 labs, that’s an overallocation penalty of 3.
+                    Compute the objective by summing the overallocation penalty over all TAs.
         """
         _, willing, _ = self.get_preference_masks()
         mask = (willing == 1) & (assignment == 1)
@@ -208,11 +195,14 @@ class AssignTa:
 
 # ==== Main
 def main():
+    # Init
     evo = Evo()
     a = AssignTa()
     a.assign_ta_df("assignta_data/tas.csv")
     a.assign_lab_df("assignta_data/sections.csv")
     a.assignment = a.zeros()
+
+    # Debugs
     print(f"Matrix Size: {a.assignment.size}")
     print(f"Num TAs: {len(a.ta)}")
     print(f"Number of Sections: {a.lab['section'].count()}")
@@ -223,6 +213,43 @@ def main():
     print(w.size)
     print(p)
     print(p.size)
+
+    # Task1
+    """
+    1. Minimize overallocation of TAs (overallocation): 
+    Each TA specifies how many labs they can support (max_assigned column in tas.csv). 
+    If a TA requests at most 2 labs and you assign to them 5 labs, that’s an overallocation penalty of 3. 
+    Compute the objective by summing the overallocation penalty over all TAs. There is no minimum allocation.
+    """
+
+    # Task 2
+    """
+    Minimize time conflicts (conflicts): 
+    Minimize the number of TAs with one or more time conflicts. 
+    A time conflict occurs if you assign a TA to two labs meeting at the same time. 
+    If a TA has multiple time conflicts, still count that as one overall time conflict for that TA.
+    """
+
+    # Task 3
+    """
+    Minimize Under-Support (undersupport): 
+    If a section needs at least 3 TAs and you only assign 1, count that as 2 penalty points.
+    Minimize the total penalty score across all sections. There is no penalty for assigning too many TAs. 
+    You can never have enough TAs.
+    """
+
+    # Task 4
+    """
+    Minimize the number of times you allocate a TA to a section they are unavailable to support (unavailable). 
+    You could argue this is really a hard constraint, but we will treat it as an objective to be minimized instead.
+    """
+
+    # Task 5
+    """
+    Minimize the number of times you allocate a TA to a section where they said “willing” but not “preferred”. (unpreferred). 
+    In effect, we are trying to assign TAs to sections that they prefer. But we want to frame every objective a minimization objective. 
+    So, if your solution score has unwilling=0 and unpreferred=0, then all TAs are assigned to sections they prefer! Good job!
+    """
 
 
 if __name__ == "__main__":
