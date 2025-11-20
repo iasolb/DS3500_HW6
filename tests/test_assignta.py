@@ -3,13 +3,13 @@ Authors: Cassandra Cinzori and Ian Solberg
 File: test_assignta.py
 Description: unit tests for each objective
 """
+
 import pandas as pd
 import numpy as np
 from assignta import AssignTa
 import pytest
 
 
-# @pytest.fixture
 def test1():
     """
     Expected Objective Vals:
@@ -61,12 +61,14 @@ def test3():
     return a
 
 
+@pytest.fixture
 def get_test_states():
     """
     Helper function to get all three test states
     """
     state1, state2, state3 = test1(), test2(), test3()
     return state1, state2, state3
+
 
 # ==== Overallocation Tests
 def test_overallocation():
@@ -168,6 +170,8 @@ def test_unpreferred():
     assert result3 == 17, f"Test3 unpreferred: expected 17, got {result3}"
 
     # ==== Main Function
+
+
 def main():
     print("Running manual tests...")
 
@@ -178,7 +182,6 @@ def main():
         print("✅ All tests passed")
     except AssertionError as e:
         print(f"❌ Overallocation test failed: {e}")
-
 
     # Conflicts
     print("\n=== Testing Conflicts ===")
@@ -211,6 +214,7 @@ def main():
         print("✅ All tests passed")
     except AssertionError as e:
         print(f"❌ Unpreferred test failed: {e}")
+
 
 if __name__ == "__main__":
     main()
