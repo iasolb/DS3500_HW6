@@ -10,9 +10,9 @@ import pytest
 
 def instance():
     a = AssignTa()
-    a.assign_ta_df("assignta_data/tas.csv")
-    a.assign_lab_df("assignta_data/sections.csv")
-    a.init_assignment(len(a.ta), len(a.lab))
+    a.assign_ta_df("../assignta_data/tas.csv")
+    a.assign_lab_df("../assignta_data/sections.csv")
+    a.assignment = a.zeros()
     # TODO make a setup with a known assignment matrix
     return a
 
