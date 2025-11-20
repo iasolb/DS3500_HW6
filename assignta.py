@@ -221,7 +221,11 @@ def main():
     If a TA requests at most 2 labs and you assign to them 5 labs, that’s an overallocation penalty of 3. 
     Compute the objective by summing the overallocation penalty over all TAs. There is no minimum allocation.
     """
+    print("Starting Task 1")
+    task1_evolution = Evo()
+    # TODO implement evolution for task 1
 
+    print("Task 1 Complete")
     # Task 2
     """
     Minimize time conflicts (conflicts): 
