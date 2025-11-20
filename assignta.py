@@ -50,6 +50,28 @@ class AssignTa:
         self.willing = (values == "W").astype(int)
         self.prefer = (values == "P").astype(int)
 
+    def get_conflict_pairs(self, assignment: np.array) -> list:
+        all_conflicts = []
+        all_lab_times = self.lab["daytime"].values  # Direct numpy array from pandas
+        ta_indices, lab_indices = np.where(assignment == 1)
+        assigned_times = all_lab_times[lab_indices]
+        for ta_idx in np.unique(ta_indices):
+            ta_mask = ta_indices == ta_idx
+            ta_labs = lab_indices[ta_mask]
+            ta_times = assigned_times[ta_mask]
+            unique_times, inverse, counts = np.unique(
+                ta_times, return_inverse=True, return_counts=True
+            )
+            conflicting_time_mask = counts > 1
+            if not conflicting_time_mask.any():
+                continue
+            for time_idx in np.where(conflicting_time_mask)[0]:
+                conflict_mask = inverse == time_idx
+                conflicting_labs = ta_labs[conflict_mask]
+                conflict_locations = [(ta_idx, lab_idx) for lab_idx in conflicting_labs]
+                all_conflicts.extend(conflict_locations)
+        return all_conflicts
+
     # ==== Objective Functions
 
     def overallocation(self, assignment: np.ndarray) -> int:
@@ -97,16 +119,8 @@ class AssignTa:
              A time conflict occurs if you assign a TA to two labs meeting at the same time.
              If a TA has multiple time conflicts, still count that as one overall time conflict for that TA.
         """
-        penalty = 0
-        all_lab_times = self.lab["daytime"].tolist()  # Lab meeting times
-        for ta in assignment:
-            assigned_labs_idx = np.where(ta == 1)[0]  # Assigned lab
-            assigned_times = [all_lab_times[idx] for idx in assigned_labs_idx]  # Updated to a list comp (Cass)
-            if (
-                len(assigned_times) != len(set(assigned_times))
-                and len(assigned_times) > 0
-            ):
-                penalty += 1
+        conflict_pairs = self.get_conflict_pairs(assignment)
+        penalty = len(set(ta_idx for ta_idx, lab_idx in conflict_pairs))
         return penalty
 
     def undersupport(self, assignment: np.ndarray) -> int:
@@ -189,19 +203,43 @@ class AssignTa:
     def undersupport_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Assign an available TA to an undersupported lab"""
         new_assignment = assignment.copy()
-        # TODO: write logic
-        # find lab with the largest difference between min_ta and allocated
-        # random choice - to prevent tie errors (pick one unsupported lab)
-        # find all TAs which are != Unavailable AND assigned = 0
-        # check for time conflicts
-        # assign one of the available candidates 1
+        allocated_per_lab = assignment.sum(axis=0)
+        required_per_lab = self.lab["min_ta"].values
+        undersupport = np.maximum(required_per_lab - allocated_per_lab, 0)
+        max_undersupport = undersupport.max()
+        if max_undersupport == 0:
+            return new_assignment  # No undersupported labs
+        most_undersupported_labs = np.where(undersupport == max_undersupport)[
+            0
+        ]  # handles ties
+        lab_idx = np.random.choice(most_undersupported_labs)  # breaks ties
+        available_tas = (self.unavail[:, lab_idx] == 0) & (assignment[:, lab_idx] == 0)
+        available_ta_indices = np.where(available_tas)[0]
+        if len(available_ta_indices) == 0:
+            return new_assignment  # No available TAs for this lab
+        lab_time = self.lab["daytime"].values[lab_idx]
+        all_lab_times = self.lab["daytime"].values
+        conflict_free_tas = []
+        for ta_idx in available_ta_indices:
+            # Get this TA's currently assigned labs
+            assigned_labs = np.where(assignment[ta_idx] == 1)[0]
+            assigned_times = all_lab_times[assigned_labs]
+            if lab_time not in assigned_times:
+                conflict_free_tas.append(ta_idx)
+        if len(conflict_free_tas) == 0:
+            return new_assignment
+        ta_idx = np.random.choice(conflict_free_tas)
+        new_assignment[ta_idx, lab_idx] = 1
+
         return new_assignment
 
     def conflict_remover_agent(self, assignment: np.ndarray) -> np.ndarray:
         """Removes a scheduling conflict"""
         new_assignment = assignment.copy()
-        # TODO: write logic
-
+        conflicts = self.get_conflict_pairs()
+        choice = np.random.choice((conflicts))
+        ta_idx, lab_idx = choice
+        new_assignment[lab_idx, ta_idx] = 0
         return new_assignment
 
 

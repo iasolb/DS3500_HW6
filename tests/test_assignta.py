@@ -9,18 +9,7 @@ from assignta import AssignTa
 import pytest
 
 
-# Import profiler to time tests
-try:
-    from profiler import profile, Profiler
-    PROFILING_ENABLED = True
-except ImportError:
-    # If profiler not available, create dummy decorator
-    def profile(f):
-        return f
-    PROFILING_ENABLED = False
-
-
-@profile
+# @pytest.fixture
 def test1():
     """
     Expected Objective Vals:
@@ -31,13 +20,13 @@ def test1():
     Unpreferred: 10
     """
     a = AssignTa()
-    a.assign_ta_df("assignta_data/tas.csv")
-    a.assign_lab_df("assignta_data/sections.csv")
-    a.assignment = pd.read_csv("assignta_data/test1.csv", header=None).to_numpy()
+    a.assign_ta_df("../assignta_data/tas.csv")
+    a.assign_lab_df("../assignta_data/sections.csv")
+    a.assignment = pd.read_csv("../assignta_data/test1.csv", header=None).to_numpy()
     a.get_preference_masks()
     return a
 
-@profile
+
 def test2():
     """
     Expected Objective Vals:
@@ -48,13 +37,13 @@ def test2():
     Unpreferred: 16
     """
     a = AssignTa()
-    a.assign_ta_df("assignta_data/tas.csv")
-    a.assign_lab_df("assignta_data/sections.csv")
-    a.assignment = pd.read_csv("assignta_data/test2.csv", header=None).to_numpy()
+    a.assign_ta_df("../assignta_data/tas.csv")
+    a.assign_lab_df("../assignta_data/sections.csv")
+    a.assignment = pd.read_csv("../assignta_data/test2.csv", header=None).to_numpy()
     a.get_preference_masks()
     return a
 
-@profile
+
 def test3():
     """
     Expected Objective Vals:
@@ -65,9 +54,9 @@ def test3():
     Unpreferred: 17
     """
     a = AssignTa()
-    a.assign_ta_df("assignta_data/tas.csv")
-    a.assign_lab_df("assignta_data/sections.csv")
-    a.assignment = pd.read_csv("assignta_data/test3.csv", header=None).to_numpy()
+    a.assign_ta_df("../assignta_data/tas.csv")
+    a.assign_lab_df("../assignta_data/sections.csv")
+    a.assignment = pd.read_csv("../assignta_data/test3.csv", header=None).to_numpy()
     a.get_preference_masks()
     return a
 
@@ -80,7 +69,6 @@ def get_test_states():
     return state1, state2, state3
 
 # ==== Overallocation Tests
-@profile
 def test_overallocation():
     """
     Test overallocation objective on all three test cases
@@ -101,7 +89,6 @@ def test_overallocation():
 
 
 # ==== Conflict Tests
-@profile
 def test_conflicts():
     """
     Test conflicts objective on all three test cases
@@ -122,7 +109,6 @@ def test_conflicts():
 
 
 # ==== Undersupport Tests
-@profile
 def test_undersupport():
     """
     Test undersupport objective on all three test cases
@@ -143,7 +129,6 @@ def test_undersupport():
 
 
 # ==== Unavailable Tests
-@profile
 def test_unavailable():
     """
     Test unavailable objective on all three test cases
@@ -164,7 +149,6 @@ def test_unavailable():
 
 
 # ==== Unpreferred Tests
-@profile
 def test_unpreferred():
     """
     Test unpreferred objective on all three test cases
@@ -183,7 +167,7 @@ def test_unpreferred():
     result3 = state3.unpreferred(state3.assignment)
     assert result3 == 17, f"Test3 unpreferred: expected 17, got {result3}"
 
-# ==== Main Function
+    # ==== Main Function
 def main():
     print("Running manual tests...")
 
@@ -227,13 +211,6 @@ def main():
         print("✅ All tests passed")
     except AssertionError as e:
         print(f"❌ Unpreferred test failed: {e}")
-
-    # Print profiling report if enabled
-    if PROFILING_ENABLED:
-        print("\n" + "=" * 60)
-        print("TEST PROFILING REPORT")
-        print("=" * 60)
-        Profiler.report()
 
 if __name__ == "__main__":
     main()
