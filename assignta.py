@@ -17,22 +17,36 @@ class AssignTa:
 
     # ==== Initialization // Helpers
 
-    def load_data(self, fp: str) -> pd.DataFrame:
+    def _load_data(self, fp: str) -> pd.DataFrame:
         return pd.read_csv(fp)
 
-    def assign_ta_df(self, data: pd.DataFrame):
-        self.ta = data
+    def assign_ta_df(self, fp: str):
+        self.ta = self._load_data(fp)
 
-    def assign_lab_df(self, data: pd.DataFrame):
-        self.lab = data
+    def assign_lab_df(self, fp: str):
+        self.lab = self._load_data(fp)
 
-    def init_assignment(self, num_tas, num_labs):
+    def zeros(self) -> np.array:
         """
         Create an initial assignment of num_tas, num_labs (all start as 0)
 
         """
-        self.assignment = np.zeros((num_tas, num_labs), dtype=int)
-        return self.assignment
+        num_tas = len(self.ta)
+        num_labs = len(self.lab)
+        return np.zeros((num_tas, num_labs), dtype=int)
+
+    def get_preference_masks(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        returns preference masks - helper function for objectives
+        """
+        ta_working = self.ta.drop(columns=["ta_id", "name", "max_assigned"])
+        values = ta_working.values
+        # Create Mask
+        unavailable = (values == "U").astype(int)
+        willing = (values == "W").astype(int)
+        preferred = (values == "P").astype(int)
+
+        return unavailable, willing, preferred
 
     # ==== Objective Functions
 
@@ -138,12 +152,8 @@ class AssignTa:
         Minimize the number of times you allocate a TA to a section they are unavailable to support (unavailable).
         You could argue this is really a hard constraint, but we will treat it as an objective to be minimized instead.
         """
-        pref_matrix = tas_df.loc[
-            :, [str(i) for i in range(assignment.shape[1])]
-        ].values  # TA preferences
-        mask = (pref_matrix == "U") & (
-            assignment == 1
-        )  # True when TAs are unavailable and assigned
+        unavailable, _, _ = self.get_preference_masks()
+        mask = (unavailable == 1) & (assignment == 1)
         penalties = np.sum(mask)
         return penalties
 
@@ -156,12 +166,8 @@ class AssignTa:
         unwilling=0
         unpreferred=0
         """
-        pref_matrix = tas_df.loc[
-            :, [str(i) for i in range(assignment.shape[1])]
-        ].values  # TA preferences
-        mask = (pref_matrix == "W") & (
-            assignment == 1
-        )  # True when TAs are willing and assigned
+        _, willing, _ = self.get_preference_masks()
+        mask = (willing == 1) & (assignment == 1)
         penalties = np.sum(mask)
         return penalties
 
@@ -204,15 +210,19 @@ class AssignTa:
 def main():
     evo = Evo()
     a = AssignTa()
-    ta = a.load_data("assignta_data/tas.csv")
-    lab = a.load_data("assignta_data/sections.csv")
-    a.assign_ta_df(ta)
-    a.assign_lab_df(lab)
-    a.init_assignment(len(a.ta), len(a.lab))
-    print(a.assignment.size)
-    print(a.ta.head())
-    print(a.lab.head())
-    print(a.assignment)
+    a.assign_ta_df("assignta_data/tas.csv")
+    a.assign_lab_df("assignta_data/sections.csv")
+    a.assignment = a.zeros()
+    print(f"Matrix Size: {a.assignment.size}")
+    print(f"Num TAs: {len(a.ta)}")
+    print(f"Number of Sections: {a.lab['section'].count()}")
+    u, w, p = a.get_preference_masks()
+    print(u)
+    print(u.size)
+    print(w)
+    print(w.size)
+    print(p)
+    print(p.size)
 
 
 if __name__ == "__main__":

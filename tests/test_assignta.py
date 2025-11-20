@@ -10,19 +10,18 @@ import pytest
 
 def instance():
     a = AssignTa()
-    ta = a.load_data("assignta_data/tas.csv")
-    lab = a.load_data("assignta_data/sections.csv")
-    a.assign_ta_df(ta)
-    a.assign_lab_df(lab)
+    a.assign_ta_df("assignta_data/tas.csv")
+    a.assign_lab_df("assignta_data/sections.csv")
+    a.init_assignment(len(a.ta), len(a.lab))
     # TODO make a setup with a known assignment matrix
     return a
 
 
 def wrapper(f: function) -> function:
 
-    a = instance()
+    state = instance()
 
-    return a
+    return state
 
 
 def test_overallocation():
