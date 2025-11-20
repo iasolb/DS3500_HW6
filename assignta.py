@@ -101,7 +101,7 @@ class AssignTa:
         all_lab_times = self.lab["daytime"].tolist()  # Lab meeting times
         for ta in assignment:
             assigned_labs_idx = np.where(ta == 1)[0]  # Assigned lab
-            assigned_times = all_lab_times[assigned_labs_idx]  # Lab time
+            assigned_times = [all_lab_times[idx] for idx in assigned_labs_idx]  # Updated to a list comp (Cass)
             if (
                 len(assigned_times) != len(set(assigned_times))
                 and len(assigned_times) > 0
