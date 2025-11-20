@@ -170,10 +170,10 @@ class AssignTa:
         new_assignment = assignment.copy()
         ta_idx = np.random.choice(assignment.shape[0])
         lab_idx = np.random.choice(assignment.shape[1])
-        if assignment[lab_idx, ta_idx] == 1:
-            assignment[lab_idx, ta_idx] = 0
+        if new_assignment[ta_idx, lab_idx] == 1:
+            new_assignment[ta_idx, lab_idx] = 0
         else:
-            assignment[lab_idx, ta_idx] = 1
+            new_assignment[ta_idx, lab_idx] = 1
         return new_assignment
 
     def preference_agent(self, assignment: np.ndarray) -> np.ndarray:
