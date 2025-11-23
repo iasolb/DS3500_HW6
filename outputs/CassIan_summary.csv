@@ -1,0 +1,17 @@
+groupname,overallocation,conflicts,undersupport,unavailable,unpreferred,aggregatescore
+CassIan,0,0,0,0,3,0.03
+CassIan,0,0,1,0,2,0.12
+CassIan,1,0,0,0,2,0.12
+CassIan,0,0,2,0,1,0.21
+CassIan,1,0,1,0,1,0.21
+CassIan,0,0,3,0,0,0.3
+CassIan,1,0,2,0,0,0.3
+CassIan,0,0,0,1,2,10.02
+CassIan,0,0,1,1,1,10.11
+CassIan,1,0,0,1,1,10.11
+CassIan,0,0,2,1,0,10.2
+CassIan,1,0,1,1,0,10.2
+CassIan,0,0,0,2,1,20.01
+CassIan,1,0,0,2,0,20.1
+CassIan,0,0,1,2,0,20.1
+CassIan,0,0,0,3,0,30.0
