@@ -31,10 +31,9 @@ def test1():
     Unpreferred: 10
     """
     a = AssignTa()
-    a.assign_ta_df("../assignta_data/tas.csv")
-    a.assign_lab_df("../assignta_data/sections.csv")
-    a.assignment = pd.read_csv("../assignta_data/test1.csv", header=None).to_numpy()
-    a.get_preference_masks()
+    a.assign_ta_df("assignta_data/tas.csv")
+    a.assign_lab_df("assignta_data/sections.csv")
+    a.assignment = pd.read_csv("assignta_data/test1.csv", header=None).to_numpy()
     return a
 
 @profile
@@ -48,10 +47,9 @@ def test2():
     Unpreferred: 16
     """
     a = AssignTa()
-    a.assign_ta_df("../assignta_data/tas.csv")
-    a.assign_lab_df("../assignta_data/sections.csv")
-    a.assignment = pd.read_csv("../assignta_data/test2.csv", header=None).to_numpy()
-    a.get_preference_masks()
+    a.assign_ta_df("assignta_data/tas.csv")
+    a.assign_lab_df("assignta_data/sections.csv")
+    a.assignment = pd.read_csv("assignta_data/test2.csv", header=None).to_numpy()
     return a
 
 @profile
@@ -65,10 +63,9 @@ def test3():
     Unpreferred: 17
     """
     a = AssignTa()
-    a.assign_ta_df("../assignta_data/tas.csv")
-    a.assign_lab_df("../assignta_data/sections.csv")
-    a.assignment = pd.read_csv("../assignta_data/test3.csv", header=None).to_numpy()
-    a.get_preference_masks()
+    a.assign_ta_df("assignta_data/tas.csv")
+    a.assign_lab_df("assignta_data/sections.csv")
+    a.assignment = pd.read_csv("assignta_data/test3.csv", header=None).to_numpy()
     return a
 
 
