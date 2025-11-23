@@ -2,26 +2,26 @@
 PROFILING REPORT
 ================================================================================
 
-Total Runtime: 546.340843 seconds
-Total Function Calls: 6011036
+Total Runtime: 705.478152 seconds
+Total Function Calls: 9929782
 
 Function              Calls     TotSec   Sec/Call
 ------------------------------------------------------------
-optimize_ta_assignment      1 300.033830 300.033830
-AssignTa.conflicts   846626  52.933487   0.000063
-AssignTa.get_conflict_count 846626  51.896240   0.000061
-AssignTa.conflict_remover_agent  84674  46.838612   0.000553
-AssignTa.get_conflict_pairs  84674  46.142603   0.000545
-AssignTa.aggregate_objective 423313  14.765489   0.000035
-AssignTa.preference_agent  84529   7.095051   0.000084
-AssignTa.unavailable 846626   6.463441   0.000008
-AssignTa.unpreferred 846626   5.682821   0.000007
-AssignTa.undersupport 846626   4.311103   0.000005
-AssignTa.overallocation 846626   4.103278   0.000005
-AssignTa.undersupport_agent  84677   3.492687   0.000041
-AssignTa.schedule_swapping_agent  84909   1.407917   0.000017
-AssignTa.random_flip_agent  84503   1.174284   0.000014
+optimize_ta_assignment      1 300.034382 300.034382
+AssignTa.conflicts   1398600  87.555871   0.000063
+AssignTa.get_conflict_count 1398600  85.843773   0.000061
+AssignTa.conflict_remover_agent 139602  77.429283   0.000555
+AssignTa.get_conflict_pairs 139602  76.211430   0.000546
+AssignTa.aggregate_objective 699300  24.228900   0.000035
+AssignTa.preference_agent 139868  11.459593   0.000082
+AssignTa.unavailable 1398600  10.425961   0.000007
+AssignTa.unpreferred 1398600   9.260205   0.000007
+AssignTa.undersupport 1398600   7.040677   0.000005
+AssignTa.overallocation 1398600   6.706305   0.000005
+AssignTa.undersupport_agent 140340   5.212285   0.000037
+AssignTa.schedule_swapping_agent 139691   2.172570   0.000016
+AssignTa.random_flip_agent 139778   1.896917   0.000014
 ------------------------------------------------------------
 
-❌ WARNING: Runtime 546.3408s > 300s (exceeds the time limti)
+❌ WARNING: Runtime 705.4782s > 300s (exceeds the time limti)
 ================================================================================

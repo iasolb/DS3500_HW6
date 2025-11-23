@@ -1,1 +1,17 @@
 Identify what you consider to be your “best” solution and justify your answer!
+
+🏆 Best Solution:
+   Aggregate Score: 0.03
+   Conflicts: 0 | Unavailable: 0
+   Overalloc: 0 | Undersupport: 0 | Unpreferred: 3
+
+We believe that this is the best choice because it perfectly satisfies all hard constraints with zero conflicts, zero
+unavailable assignments, zero overallocation, and zero undersupport. This means every section is properly staffed, no
+TA is double-booked or overworked, and all assignments respect TA availability. The only trade-off is 3 unpreferred
+assignments, where TAs are assigned to sections they marked as "willing" rather than "preferred"—a minor inconvenience
+that doesn't compromise operational requirements. In contrast, the other solutions have undersupport or overallocation
+issues that directly impact instruction quality and TA wellbeing, making them inferior choices despite having fewer
+unpreferred assignments.
+
+
+

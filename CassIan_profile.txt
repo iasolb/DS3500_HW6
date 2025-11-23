@@ -10,5 +10,5 @@ Function              Calls     TotSec   Sec/Call
 optimize_ta_assignment      1 300.031775 300.031775
 ------------------------------------------------------------
 
-❌ WARNING: Runtime 300.0318s > 300s (exceeds the time limti)
+❌ WARNING: Runtime 300.0318s > 300s (exceeds the time limit)
 ================================================================================
